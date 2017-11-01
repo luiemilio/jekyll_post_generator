@@ -1,17 +1,22 @@
+#!/usr/bin/env ruby
+require 'json'
+
 class Jekyll
   def initialize(config_file)
-    @fields = File.open(config_file) {|f| f.readline}
-    @fields_array = fields.chomp.split(",")
+    @config_file = File.read('config.json')
+    @fields_array = JSON.parse(@config_file)["fields"]
+    @filetype = JSON.parse(@config_file)["filetype"]
+    @layout = JSON.parse(@config_file)["layout"]
+    @date = Time.now
     @values = {}
   end
 
-  attr_reader :fields, :fields_array, :values
+  attr_reader :fields, :fields_array, :values, :date, :filetype, :layout
 
   def get_values
     fields_array.each do |field|
-      next if field == "layout"
       if field == "date"
-        values["date"] = Time.now
+        values["date"] = date
       else
         puts "#{field}?"
         field == "tags" ? values[field] = [gets.chomp] : values[field] = gets.chomp
@@ -20,7 +25,7 @@ class Jekyll
   end
 
   def convert_date
-    values["date"].strftime("%Y-%m-%d")
+    date.strftime("%Y-%m-%d")
   end
 
   def convert_title_to_filename
@@ -29,16 +34,17 @@ class Jekyll
       next if invalid_chars.include?(char)
       char == " " ? "_" : char
     end.join
-    convert_date+"-"+converted_title+".txt"
+    convert_date+"-"+converted_title+".#{filetype}"
   end
 
   def create_file
     new_file = File.new(convert_title_to_filename, 'w')
+    new_file.puts("layout: #{layout}")
     fields_array.each do |field|
-      if field == "layout"
-        new_file.puts("layout: post")
-      elsif field == "tags"
+      if field == "tags"
         new_file.puts(field+": "+"[#{values[field].join(",")}]")
+      elsif field == "title"
+        new_file.puts(field+": "+"\"#{values[field]}\"")
       else
         new_file.puts(field+": "+"#{values[field]}")
       end
