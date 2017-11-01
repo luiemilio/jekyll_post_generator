@@ -1,5 +1,4 @@
 {
-  "fields": ["title","href","date","tags","categories"],
-  "filetype": "md",
-  "layout": "post"
+  "fields": ["layout","title","href","date","tags","categories"],
+  "filetype": "md"
 }
