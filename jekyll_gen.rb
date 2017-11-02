@@ -3,17 +3,17 @@ require 'json'
 
 class Jekyll
   def initialize(config_file)
-    @config_file = File.read('config.json')
-    @fields_array = JSON.parse(@config_file)["fields"]
-    @filetype = JSON.parse(@config_file)["filetype"]
+    config = File.read(config_file)
+    @fields = JSON.parse(config)["fields"]
+    @filetype = JSON.parse(config)["filetype"]
     @date = Time.now
     @values = {}
   end
 
-  attr_reader :fields, :fields_array, :values, :date, :filetype, :layout
+  attr_reader :fields, :values, :date, :filetype
 
   def get_values
-    fields_array.each do |field|
+    fields.each do |field|
       if field == "date"
         values["date"] = date
       else
@@ -38,7 +38,7 @@ class Jekyll
 
   def create_file
     new_file = File.new(convert_title_to_filename, 'w')
-    fields_array.each do |field|
+    fields.each do |field|
       if field == "tags"
         new_file.puts(field+": "+"[#{values[field].join(",")}]")
       elsif field == "title"
@@ -51,6 +51,6 @@ class Jekyll
   end
 end
 
-j = Jekyll.new("config")
+j = Jekyll.new("config.json")
 j.get_values
 j.create_file
