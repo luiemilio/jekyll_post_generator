@@ -38,6 +38,7 @@ class Jekyll
 
   def create_file
     new_file = File.new(convert_title_to_filename, 'w')
+    new_file.puts("---")
     fields.each do |field|
       if field == "tags"
         new_file.puts(field+": "+"[#{values[field].join(",")}]")
@@ -47,6 +48,7 @@ class Jekyll
         new_file.puts(field+": "+"#{values[field]}")
       end
     end
+    new_file.puts("---")
     new_file.close
   end
 end
